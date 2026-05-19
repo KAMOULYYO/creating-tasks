@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📋 TaskFlow — Gestionnaire de tâches du jour
 
-## Getting Started
+> Application web full-stack de gestion de tâches, construite avec Next.js 16, Supabase et Claude AI.
 
-First, run the development server:
+## ✨ Features
+
+- ✅ **Gestion de tâches** — ajout, édition, suppression, toggle done/pending
+- 🎯 **Drag & Drop** — réordonne tes tâches en glisser-déposer
+- 📊 **Statistiques** — graphiques de productivité par catégorie et priorité
+- 🔔 **Notifications** — rappels navigateur 5 min avant chaque tâche planifiée
+- 🎉 **Confetti** — célébration quand toutes les tâches sont terminées
+- 🔥 **Streak** — compteur de jours consécutifs de productivité
+- 🌙 **Dark mode** — thème clair/sombre persistant
+- 📱 **PWA** — installable sur téléphone comme une vraie app
+- ⏱️ **Pomodoro** — timer 25/5/15 min flottant et draggable
+- ✨ **Suggestions IA** — Claude analyse tes tâches et suggère quoi faire
+- 📄 **Export PDF** — rapport journalier professionnel en un clic
+- 🔒 **Auth complète** — inscription / connexion par email + bcrypt
+
+## 🛠 Stack
+
+| Couche | Techno |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Langage | TypeScript |
+| Style | Tailwind CSS + Claymorphism design |
+| Animations | Framer Motion |
+| Base de données | Supabase (PostgreSQL) |
+| Auth | NextAuth.js v4 + bcryptjs |
+| IA | Claude Haiku (Anthropic) |
+| Charts | Recharts |
+| DnD | @dnd-kit |
+| PDF | jsPDF |
+
+## 🚀 Installation
 
 ```bash
+# 1. Clone
+git clone https://github.com/KAMOULYYO/creating-tasks
+cd creating-tasks
+
+# 2. Dépendances
+npm install
+
+# 3. Variables d'environnement
+cp .env.example .env.local
+# Édite .env.local avec tes clés Supabase + Anthropic
+
+# 4. Base de données
+# Copie supabase/schema.sql dans l'éditeur SQL de Supabase et exécute
+
+# 5. Lance
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvre [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── api/auth/       → NextAuth + Register
+│   ├── api/tasks/      → CRUD tâches (GET, POST, PATCH, DELETE)
+│   ├── api/ai/suggest/ → Suggestions Claude AI
+│   ├── dashboard/      → App principale
+│   ├── login/          → Connexion
+│   ├── register/       → Inscription
+│   └── page.tsx        → Landing page
+├── components/         → TaskCard, Modals, Charts, Pomodoro, AISuggest...
+├── hooks/              → useNotifications, usePWA, useExportPDF
+├── lib/                → Supabase client, NextAuth config, design tokens
+└── types/              → TypeScript types
+```
 
-## Learn More
+## 🗄 Base de données
 
-To learn more about Next.js, take a look at the following resources:
+Exécute `supabase/schema.sql` dans Supabase → SQL Editor.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fait avec ❤️ et ☕
