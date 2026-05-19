@@ -3,16 +3,34 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Task } from '@/types/database'
+import fs from 'fs'
+import path from 'path'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+function getAnthropicKey(): string {
+  if (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.startsWith('sk-')) {
+    return process.env.ANTHROPIC_API_KEY
+  }
+  try {
+    const envPath = path.join(process.cwd(), '.env.local')
+    const lines = fs.readFileSync(envPath, 'utf-8').split(/\r?\n/)
+    for (const line of lines) {
+      const m = line.match(/^ANTHROPIC_API_KEY=(.+)$/)
+      if (m) return m[1].trim()
+    }
+  } catch {}
+  return ''
+}
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'your_anthropic_api_key_here') {
+  const apiKey = getAnthropicKey()
+  if (!apiKey) {
     return NextResponse.json({ error: 'Clé API Anthropic manquante' }, { status: 503 })
   }
+
+  const client = new Anthropic({ apiKey })
 
   const { tasks }: { tasks: Task[] } = await req.json()
 
@@ -20,13 +38,14 @@ export async function POST(req: NextRequest) {
   const pending = tasks.filter(t => t.status !== 'done').map(t => t.title)
   const now     = new Date().toLocaleString('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' })
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 400,
-    system: `Tu es un assistant de productivité personnel. Tu aides l'utilisateur à planifier ses tâches de manière intelligente et motivante. Réponds TOUJOURS en JSON valide, sans markdown ni backticks.`,
-    messages: [{
-      role: 'user',
-      content: `Nous sommes ${now}.
+  try {
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      system: `Tu es un assistant de productivité personnel. Tu aides l'utilisateur à planifier ses tâches de manière intelligente et motivante. Réponds TOUJOURS en JSON valide, sans markdown ni backticks.`,
+      messages: [{
+        role: 'user',
+        content: `Nous sommes ${now}.
 Tâches déjà faites aujourd'hui: ${done.length > 0 ? done.join(', ') : 'aucune'}
 Tâches en cours: ${pending.length > 0 ? pending.join(', ') : 'aucune'}
 
@@ -40,14 +59,16 @@ Réponds uniquement avec ce JSON (sans texte autour):
   ],
   "motivation": "message motivant personnalisé de 1 phrase"
 }`,
-    }],
-  })
+      }],
+    })
 
-  try {
-    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    const raw  = message.content[0].type === 'text' ? message.content[0].text : ''
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim()
     const json = JSON.parse(text)
     return NextResponse.json(json)
-  } catch {
-    return NextResponse.json({ error: 'Réponse IA invalide' }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[AI] Error:', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
