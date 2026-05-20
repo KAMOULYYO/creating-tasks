@@ -55,93 +55,25 @@ function GridBackground() {
   )
 }
 
-/* Aurora UI — gradient animé global */
+/* Aurora UI — CSS pur (zéro JS, GPU only) */
 function Aurora() {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-      <motion.div
-        animate={{ x: [0, 120, 0], y: [0, -60, 0], scale: [1, 1.2, 1] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-40 left-1/4 w-[700px] h-[700px] rounded-full blur-[160px]"
-        style={{ background: 'rgba(59,130,246,0.07)' }}
-      />
-      <motion.div
-        animate={{ x: [0, -100, 0], y: [0, 80, 0], scale: [1, 1.15, 1] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-        className="absolute top-1/3 -right-20 w-[600px] h-[600px] rounded-full blur-[180px]"
-        style={{ background: 'rgba(124,58,237,0.06)' }}
-      />
-      <motion.div
-        animate={{ x: [0, 80, 0], y: [0, -50, 0], scale: [1, 1.3, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 8 }}
-        className="absolute -bottom-20 left-1/3 w-[800px] h-[500px] rounded-full blur-[200px]"
-        style={{ background: 'rgba(6,182,212,0.05)' }}
-      />
-      <motion.div
-        animate={{ x: [0, -60, 0], y: [0, -80, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut', delay: 12 }}
-        className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full blur-[150px]"
-        style={{ background: 'rgba(236,72,153,0.04)' }}
-      />
+    <div className="fixed inset-0 overflow-hidden pointer-events-none aurora-container" style={{ zIndex: 0 }}>
+      <div className="aurora-blob aurora-blue" />
+      <div className="aurora-blob aurora-violet" />
+      <div className="aurora-blob aurora-cyan" />
     </div>
   )
 }
 
-/* Formes géométriques flottantes */
+/* Formes décoratives — CSS only pour la perf */
 function FloatingShapes() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-      {/* Anneau haut-gauche */}
-      <motion.div
-        animate={{ rotate: 360, y: [0, -20, 0] }}
-        transition={{ rotate: { duration: 30, repeat: Infinity, ease: 'linear' }, y: { duration: 6, repeat: Infinity, ease: 'easeInOut' } }}
-        className="absolute -top-20 -left-20 w-64 h-64 rounded-full border border-blue-500/10"
-      />
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        className="absolute -top-10 -left-10 w-44 h-44 rounded-full border border-cyan-500/8"
-      />
-
-      {/* Losange milieu-droite */}
-      <motion.div
-        animate={{ rotate: [0, 45, 0], y: [0, 30, 0], opacity: [0.06, 0.12, 0.06] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/3 -right-10 w-40 h-40 border border-violet-500/10"
-        style={{ borderRadius: '30%' }}
-      />
-
-      {/* Petit carré bas-gauche */}
-      <motion.div
-        animate={{ rotate: [0, -90, 0], scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        className="absolute bottom-1/4 left-10 w-20 h-20 border border-pink-500/10"
-        style={{ borderRadius: '20%' }}
-      />
-
-      {/* Cercle bas-droite */}
-      <motion.div
-        animate={{ scale: [1, 1.3, 1], opacity: [0.04, 0.09, 0.04] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full border border-blue-500/8"
-      />
-
-      {/* Points lumineux flottants */}
-      {[
-        { top: '15%', left: '8%',  delay: 0,   size: 'w-1 h-1',     color: 'bg-blue-400' },
-        { top: '60%', left: '5%',  delay: 1.5, size: 'w-1.5 h-1.5', color: 'bg-cyan-400' },
-        { top: '80%', left: '15%', delay: 3,   size: 'w-1 h-1',     color: 'bg-violet-400' },
-        { top: '25%', right: '8%', delay: 0.8, size: 'w-1 h-1',     color: 'bg-pink-400' },
-        { top: '70%', right: '6%', delay: 2.2, size: 'w-1.5 h-1.5', color: 'bg-blue-400' },
-      ].map((p, i) => (
-        <motion.div
-          key={i}
-          animate={{ opacity: [0.2, 0.8, 0.2], scale: [1, 1.8, 1] }}
-          transition={{ duration: 3 + i * 0.4, repeat: Infinity, delay: p.delay }}
-          className={`absolute rounded-full ${p.size} ${p.color}`}
-          style={{ top: p.top, left: (p as { left?: string }).left, right: (p as { right?: string }).right }}
-        />
-      ))}
+      <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full border border-blue-500/8 shape-spin-slow" />
+      <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full border border-cyan-500/6 shape-spin-reverse" />
+      <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full border border-blue-500/6" />
+      <div className="absolute top-1/3 -right-10 w-40 h-40 border border-violet-500/8 shape-spin-slow" style={{ borderRadius: '30%' }} />
     </div>
   )
 }
@@ -445,7 +377,9 @@ function DashboardPreview() {
 
 function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 3200)
+    // Plus court sur mobile pour réduire le TBT
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
+    const t = setTimeout(onDone, isMobile ? 2000 : 3200)
     return () => clearTimeout(t)
   }, [onDone])
 
@@ -550,12 +484,13 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
   )
 }
 
-/* ─────────────── CUSTOM CURSOR ─────────────── */
+/* ─────────────── CUSTOM CURSOR (desktop only) ─────────────── */
 
 function CustomCursor() {
   const x = useMotionValue(-100)
   const y = useMotionValue(-100)
   const scale = useMotionValue(1)
+  const [visible, setVisible] = useState(false)
 
   const dotX  = useSpring(x, { stiffness: 900, damping: 45 })
   const dotY  = useSpring(y, { stiffness: 900, damping: 45 })
@@ -563,6 +498,9 @@ function CustomCursor() {
   const ringY = useSpring(y, { stiffness: 160, damping: 22 })
 
   useEffect(() => {
+    // Désactiver sur mobile/tactile
+    if (window.matchMedia('(hover: none)').matches) return
+    setVisible(true)
     const onMove = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY) }
     const onDown = () => scale.set(0.65)
     const onUp   = () => scale.set(1)
@@ -576,22 +514,17 @@ function CustomCursor() {
     }
   }, [x, y, scale])
 
+  if (!visible) return null
+
   return (
     <>
-      {/* Dot central */}
       <motion.div
         style={{ x: dotX, y: dotY, scale, translateX: '-50%', translateY: '-50%' }}
         className="fixed top-0 left-0 w-2.5 h-2.5 rounded-full bg-blue-400 pointer-events-none z-[9999] mix-blend-difference"
       />
-      {/* Anneau suiveur */}
       <motion.div
         style={{ x: ringX, y: ringY, translateX: '-50%', translateY: '-50%' }}
         className="fixed top-0 left-0 w-9 h-9 rounded-full border border-blue-400/50 pointer-events-none z-[9998]"
-      />
-      {/* Glow léger */}
-      <motion.div
-        style={{ x: ringX, y: ringY, translateX: '-50%', translateY: '-50%', background: 'rgba(59,130,246,0.08)' }}
-        className="fixed top-0 left-0 w-16 h-16 rounded-full blur-xl pointer-events-none z-[9997]"
       />
     </>
   )

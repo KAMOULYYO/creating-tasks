@@ -61,3 +61,81 @@ body {
 .flip-card:hover .flip-inner {
   transform: rotateY(180deg);
 }
+
+/* ── Aurora — CSS pur, zéro JS ── */
+@keyframes aurora-move-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(120px, -60px) scale(1.2); }
+  66%       { transform: translate(-40px, 80px) scale(0.95); }
+}
+@keyframes aurora-move-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-100px, 70px) scale(1.15); }
+  66%       { transform: translate(60px, -40px) scale(1.1); }
+}
+@keyframes aurora-move-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(80px, -50px) scale(1.25); }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(160px);
+  will-change: transform;
+}
+.aurora-blue {
+  width: 700px; height: 700px;
+  top: -160px; left: 25%;
+  background: rgba(59,130,246,0.07);
+  animation: aurora-move-1 22s ease-in-out infinite;
+}
+.aurora-violet {
+  width: 600px; height: 600px;
+  top: 33%; right: -80px;
+  background: rgba(124,58,237,0.06);
+  animation: aurora-move-2 18s ease-in-out infinite 4s;
+}
+.aurora-cyan {
+  width: 700px; height: 500px;
+  bottom: -80px; left: 33%;
+  background: rgba(6,182,212,0.05);
+  animation: aurora-move-3 25s ease-in-out infinite 8s;
+}
+
+/* ── Shapes rotation CSS ── */
+@keyframes spin-slow    { to { transform: rotate(360deg); } }
+@keyframes spin-reverse { to { transform: rotate(-360deg); } }
+
+.shape-spin-slow    { animation: spin-slow    30s linear infinite; }
+.shape-spin-reverse { animation: spin-reverse 20s linear infinite; }
+
+/* ── Mobile optimisations ── */
+@media (max-width: 768px) {
+  /* Cacher le curseur custom (inutile sur tactile) */
+  .custom-cursor { display: none !important; }
+
+  /* Réduire les animations lourdes */
+  .aurora-blob {
+    filter: blur(100px);
+    animation-duration: 40s; /* plus lent = moins de CPU */
+  }
+
+  /* Texte hero plus petit */
+  h1 { font-size: clamp(2rem, 10vw, 4rem) !important; }
+
+  /* Bento grid en colonne sur mobile */
+  .bento-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+}
+
+/* ── Perf: réduire animations si préférence système ── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .shape-spin-slow,
+  .shape-spin-reverse {
+    animation: none !important;
+  }
+}

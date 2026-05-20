@@ -8,18 +8,23 @@ const fredoka = Fredoka({ subsets: ['latin'], weight: ['400','600','700'], varia
 const nunito  = Nunito({  subsets: ['latin'], weight: ['300','400','600','700'], variable: '--font-nunito' })
 
 export const metadata: Metadata = {
-  title: 'TaskFlow — Mes tâches du jour',
-  description: 'Gérez vos tâches quotidiennes avec style',
+  title: 'TaskFlow — Organise tes tâches avec l\'IA',
+  description: 'App de gestion de tâches alimentée par l\'IA Claude. Drag & drop, statistiques, rappels intelligents.',
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'TaskFlow' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'TaskFlow' },
   formatDetection: { telephone: false },
+  openGraph: {
+    title: 'TaskFlow — Organise tes tâches avec l\'IA',
+    description: 'Drag & drop, statistiques, IA Claude intégrée.',
+    type: 'website',
+  },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#F97316',
+  themeColor: '#3b82f6',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // maximumScale removed → fix accessibilité PageSpeed
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
