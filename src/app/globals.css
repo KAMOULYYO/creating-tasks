@@ -56,3 +56,8 @@ body {
 /* hide scrollbar */
 .scrollbar-hide { scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ── Flip cards CSS (pas de bug cursor) ── */
+.flip-card:hover .flip-inner {
+  transform: rotateY(180deg);
+}
