@@ -8,8 +8,8 @@
 * { box-sizing: border-box; }
 
 body {
-  background: #FFF7ED;
-  color: #9A3412;
+  background: #020817;
+  color: #F4F4F5;
   font-family: var(--font-nunito, 'Nunito', sans-serif);
   transition: background-color 0.3s ease, color 0.3s ease;
 }

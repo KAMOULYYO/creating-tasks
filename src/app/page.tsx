@@ -3,117 +3,362 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, Zap, Bell, BarChart2, GripVertical, Star, ArrowRight } from 'lucide-react'
+import {
+  CheckCircle2, Zap, Bell, BarChart2, GripVertical,
+  ArrowRight, Brain, Sparkles, Star,
+} from 'lucide-react'
+import { ContainerScroll } from '@/components/ui/container-scroll-animation'
+
+/* ─────────────────── DATA ─────────────────── */
 
 const FEATURES = [
-  { icon: <CheckCircle2 size={22} />, title: 'Suivi en temps réel',   desc: 'Coche tes tâches et vois ta progression instantanément.' },
-  { icon: <BarChart2    size={22} />, title: 'Statistiques visuelles', desc: 'Graphiques de productivité par catégorie et priorité.' },
-  { icon: <Bell         size={22} />, title: 'Rappels intelligents',   desc: 'Notifications navigateur 5 min avant chaque tâche.' },
-  { icon: <GripVertical size={22} />, title: 'Drag & Drop',            desc: 'Réorganise tes tâches en un glisser-déposer.' },
-  { icon: <Zap          size={22} />, title: 'Ultra rapide',           desc: 'Next.js 16 + Supabase — zéro latence, données en direct.' },
-  { icon: <Star         size={22} />, title: 'Streak quotidien',       desc: 'Construis une habitude avec ton compteur de jours consécutifs.' },
+  { icon: CheckCircle2, title: 'Suivi en temps réel',    desc: 'Coche tes tâches et vois ta progression instantanément.',           gradient: 'from-blue-500 to-cyan-400'     },
+  { icon: BarChart2,    title: 'Statistiques visuelles', desc: 'Graphiques de productivité par catégorie et priorité.',              gradient: 'from-violet-500 to-purple-400' },
+  { icon: Bell,         title: 'Rappels intelligents',   desc: 'Notifications navigateur 5 min avant chaque tâche.',                 gradient: 'from-emerald-500 to-teal-400'  },
+  { icon: GripVertical, title: 'Drag & Drop',            desc: 'Réorganise tes tâches en un glisser-déposer.',                      gradient: 'from-orange-500 to-amber-400'  },
+  { icon: Zap,          title: 'Ultra rapide',           desc: 'Next.js 16 + Supabase — zéro latence, données en direct.',          gradient: 'from-yellow-500 to-orange-400' },
+  { icon: Brain,        title: 'IA Claude',              desc: 'Suggestions intelligentes basées sur tes habitudes de travail.',    gradient: 'from-pink-500 to-rose-400'     },
 ]
 
 const TESTIMONIALS = [
-  { name: 'Sophie M.',  role: 'Cheffe de projet', text: 'Je gère mes 20 tâches quotidiennes 3x plus vite qu\'avant.', avatar: '👩‍💼' },
-  { name: 'Karim B.',   role: 'Développeur',       text: 'Le drag & drop et les graphiques changent tout.', avatar: '👨‍💻' },
-  { name: 'Léa D.',     role: 'Designer',           text: 'Enfin une app de tâches aussi belle que fonctionnelle !', avatar: '👩‍🎨' },
+  { name: 'Sophie M.', role: 'Cheffe de projet', text: 'Je gère mes 20 tâches quotidiennes 3× plus vite qu\'avant.', initials: 'SM', color: 'from-blue-500 to-violet-500'    },
+  { name: 'Karim B.',  role: 'Développeur',       text: 'Le drag & drop et les graphiques changent vraiment tout.',  initials: 'KB', color: 'from-emerald-500 to-cyan-500'  },
+  { name: 'Léa D.',    role: 'Designer',           text: 'Enfin une app de tâches aussi belle que fonctionnelle !',  initials: 'LD', color: 'from-pink-500 to-rose-500'     },
 ]
 
 const TASK_PREVIEW = [
-  { title: 'Finaliser la présentation Q3', cat: '💼', done: true,  prio: 'bg-red-400'    },
-  { title: 'Réunion équipe produit 14h',   cat: '🚀', done: true,  prio: 'bg-orange-400' },
-  { title: 'Revoir le design system',      cat: '🌸', done: false, prio: 'bg-orange-400' },
-  { title: 'Envoyer le rapport mensuel',   cat: '💼', done: false, prio: 'bg-green-400'  },
+  { title: 'Finaliser la présentation Q3', cat: '💼', done: true,  color: '#EF4444' },
+  { title: 'Réunion équipe produit 14h',   cat: '🚀', done: true,  color: '#F97316' },
+  { title: 'Revoir le design system',      cat: '🌸', done: false, color: '#F97316' },
+  { title: 'Envoyer le rapport mensuel',   cat: '💼', done: false, color: '#22C55E' },
 ]
+
+const AVATARS = ['SM', 'KB', 'LD', 'AR', 'PG']
+
+/* ─────────────────── COMPONENTS ─────────────────── */
+
+function GridBackground() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(ellipse at center, transparent 20%, #020817 75%)' }}
+      />
+    </div>
+  )
+}
+
+function Orb3D() {
+  return (
+    <div
+      className="relative w-[460px] h-[460px] flex items-center justify-center flex-shrink-0"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0 rounded-full blur-[120px] opacity-25"
+        style={{ background: 'radial-gradient(circle, #3B82F6 0%, #F97316 60%, transparent 80%)' }}
+      />
+
+      {/* 3D rocking motion */}
+      <motion.div
+        animate={{ rotateY: [0, 18, 0, -18, 0], rotateX: [-4, 6, -4] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        className="relative w-[380px] h-[380px]"
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Outer ring — slow clockwise */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 rounded-full"
+          style={{
+            background:
+              'conic-gradient(from 0deg, #1e40af, #0891b2, #06b6d4, #f97316, #ec4899, #7c3aed, #1e40af)',
+            WebkitMask:
+              'radial-gradient(circle, transparent 36%, black 36%, black 47%, transparent 47%)',
+            mask: 'radial-gradient(circle, transparent 36%, black 36%, black 47%, transparent 47%)',
+          }}
+        />
+
+        {/* Inner ring — faster counter-clockwise */}
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-14 rounded-full"
+          style={{
+            background: 'conic-gradient(from 90deg, #06b6d4, #7c3aed, #f97316, #06b6d4)',
+            WebkitMask:
+              'radial-gradient(circle, transparent 36%, black 36%, black 52%, transparent 52%)',
+            mask: 'radial-gradient(circle, transparent 36%, black 36%, black 52%, transparent 52%)',
+            opacity: 0.65,
+          }}
+        />
+
+        {/* Core pulse */}
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 3.5, repeat: Infinity }}
+          className="absolute inset-[32%] rounded-full blur-2xl"
+          style={{ background: 'radial-gradient(circle, #06b6d4, #3b82f6 55%, transparent)' }}
+        />
+
+        {/* Outer glow halo */}
+        <div
+          className="absolute -inset-6 rounded-full blur-3xl opacity-20"
+          style={{ background: 'conic-gradient(from 0deg, #3b82f6, #f97316, #7c3aed, #3b82f6)' }}
+        />
+      </motion.div>
+
+      {/* Orbiting dots */}
+      {[0, 60, 120, 180, 240, 300].map((deg, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            background: i % 2 === 0 ? '#60a5fa' : '#f97316',
+            boxShadow: i % 2 === 0 ? '0 0 8px #3b82f6' : '0 0 8px #f97316',
+          }}
+          animate={{ rotate: [deg, deg + 360] }}
+          transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'linear' }}
+          // position on a circular orbit
+          initial={{ x: Math.cos((deg * Math.PI) / 180) * 210, y: Math.sin((deg * Math.PI) / 180) * 210 }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function DashboardPreview() {
+  return (
+    <div className="w-full h-full bg-[#0A0F1E] rounded-2xl overflow-hidden flex text-left">
+      {/* Sidebar */}
+      <div className="w-48 bg-[#06091A] border-r border-white/5 p-4 flex flex-col gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-xs font-black shadow-[0_0_12px_rgba(59,130,246,0.5)]">
+            T
+          </div>
+          <span className="text-white font-bold text-sm">TaskFlow</span>
+        </div>
+        {[
+          { label: 'Dashboard',    active: false },
+          { label: 'Mes Tâches',   active: true  },
+          { label: 'Calendrier',   active: false },
+          { label: 'Statistiques', active: false },
+          { label: 'IA Suggest',   active: false },
+        ].map((item, i) => (
+          <div
+            key={i}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              item.active
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20'
+                : 'text-gray-600 hover:text-gray-400'
+            }`}
+          >
+            <div className={`w-1.5 h-1.5 rounded-full ${item.active ? 'bg-blue-400' : 'bg-gray-700'}`} />
+            {item.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Main */}
+      <div className="flex-1 p-5 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-white font-bold text-base">Bonjour, Sophie 👋</h3>
+            <p className="text-gray-600 text-xs">Lundi 19 mai 2026</p>
+          </div>
+          <div className="bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs px-3 py-1.5 rounded-full font-medium">
+            🔥 7 jours de suite
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            { label: 'Total',      value: '12', gradient: 'from-blue-500 to-cyan-400'    },
+            { label: 'Complétées', value: '8',  gradient: 'from-emerald-500 to-teal-400' },
+            { label: 'En cours',   value: '4',  gradient: 'from-orange-500 to-amber-400' },
+          ].map((s, i) => (
+            <div key={i} className="bg-white/5 border border-white/5 rounded-xl p-3">
+              <p className="text-gray-600 text-xs mb-1">{s.label}</p>
+              <p className={`text-2xl font-black bg-gradient-to-r ${s.gradient} bg-clip-text text-transparent`}>
+                {s.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Progress */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-gray-600 mb-1">
+            <span>Progression du jour</span>
+            <span className="text-blue-400 font-semibold">75%</span>
+          </div>
+          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: '75%' }}
+              transition={{ delay: 0.5, duration: 1, ease: 'easeOut' }}
+              className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+            />
+          </div>
+        </div>
+
+        {/* Tasks */}
+        <div className="flex flex-col gap-2">
+          {TASK_PREVIEW.map((t, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + i * 0.1 }}
+              className={`flex items-center gap-3 p-3 rounded-xl border ${
+                t.done
+                  ? 'bg-white/[0.02] border-white/5 opacity-50'
+                  : 'bg-white/5 border-white/10'
+              }`}
+            >
+              <div
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  t.done ? 'bg-blue-500 border-blue-500' : 'border-gray-600'
+                }`}
+              >
+                {t.done && <span className="text-white text-[8px] font-bold">✓</span>}
+              </div>
+              <span className={`text-xs font-medium flex-1 ${t.done ? 'line-through text-gray-700' : 'text-gray-300'}`}>
+                {t.title}
+              </span>
+              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: t.color }} />
+              <span className="text-sm">{t.cat}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────────────── PAGE ─────────────────── */
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef })
-  const phoneY = useTransform(scrollYProgress, [0, 1], [0, 60])
+  const orbY       = useTransform(scrollYProgress, [0, 1], [0, 80])
+  const orbOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="min-h-screen bg-[#FFF7ED] overflow-x-hidden">
+    <div className="min-h-screen bg-[#020817] overflow-x-hidden text-white">
 
       {/* ── NAV ── */}
-      <nav className="sticky top-0 z-50 bg-[#FFF7ED]/80 backdrop-blur-md border-b border-orange-100 px-5 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">📋</span>
-            <span className="font-fredoka text-[20px] font-bold text-orange-900">TaskFlow</span>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl"
+        style={{ background: 'rgba(2,8,23,0.88)' }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.45)]">
+              <span className="text-white font-black text-sm">T</span>
+            </div>
+            <span className="font-bold text-[18px] tracking-tight">TaskFlow</span>
           </div>
+
+          {/* Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
+            {['Fonctionnalités', 'Témoignages', 'Tarifs'].map(l => (
+              <span key={l} className="hover:text-white cursor-pointer transition-colors">{l}</span>
+            ))}
+          </div>
+
+          {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link href="/login"
-              className="text-[14px] font-semibold text-orange-700 hover:text-orange-500 transition-colors px-3 py-1.5">
+            <Link href="/login" className="text-sm text-gray-500 hover:text-white transition-colors px-4 py-2">
               Connexion
             </Link>
-            <Link href="/register"
-              className="text-[14px] font-bold bg-orange-500 text-white px-4 py-2 rounded-full
-                shadow-[0_3px_0_rgba(154,52,18,.20)] hover:bg-orange-600 transition-colors">
-              Commencer — Gratuit
+            <Link href="/register">
+              <motion.button
+                whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(59,130,246,0.55)' }}
+                whileTap={{ scale: 0.97 }}
+                className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all"
+              >
+                Commencer — Gratuit
+              </motion.button>
             </Link>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ── HERO ── */}
-      <section ref={heroRef} className="relative max-w-5xl mx-auto px-5 pt-16 pb-12 text-center overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative max-w-6xl mx-auto px-6 pt-20 pb-10 min-h-[90vh] flex items-center gap-12 overflow-hidden"
+      >
+        <GridBackground />
 
-        {/* Background blobs */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-orange-200/30 rounded-full blur-3xl -z-10" />
-        <div className="absolute top-20 left-10 w-40 h-40 bg-amber-300/20 rounded-full blur-2xl -z-10" />
-        <div className="absolute top-10 right-10 w-32 h-32 bg-pink-200/20 rounded-full blur-2xl -z-10" />
-
+        {/* Left */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
+          className="flex-1 z-10"
         >
+          {/* Badge */}
           <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 text-[13px] font-bold px-4 py-1.5 rounded-full mb-5 border border-orange-200"
+            transition={{ delay: 0.25 }}
+            className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[13px] font-semibold px-4 py-2 rounded-full mb-7"
           >
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            Nouveau — Drag & Drop + Statistiques IA
+            <Sparkles size={13} />
+            Nouveau — IA Claude intégrée
+            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
           </motion.span>
 
-          <h1 className="font-fredoka text-[48px] md:text-[64px] font-bold text-orange-900 leading-[1.05] mb-5">
-            Tes tâches,{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-orange-500">organisées</span>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="absolute bottom-1 left-0 right-0 h-3 bg-orange-200 rounded -z-10 origin-left"
-              />
+          {/* Title */}
+          <h1 className="text-[58px] md:text-[74px] font-black leading-[1.0] mb-6 tracking-tight">
+            Tes tâches,
+            <br />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
+              organisées
             </span>
-            {' '}avec style
+            <br />
+            avec style.
           </h1>
 
-          <p className="text-[18px] text-slate-500 max-w-xl mx-auto mb-8 leading-relaxed">
-            L&apos;app de gestion de tâches la plus belle et la plus puissante.
-            Conçue pour les personnes qui veulent vraiment <strong className="text-orange-700">accomplir plus</strong>.
+          <p className="text-[18px] text-gray-400 max-w-lg mb-10 leading-relaxed">
+            L&apos;app de gestion de tâches alimentée par l&apos;IA.
+            Drag &amp; drop, statistiques, rappels — tout ce qu&apos;il faut pour{' '}
+            <span className="text-white font-semibold">accomplir plus</span>.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row items-start gap-4 mb-12">
             <Link href="/register">
               <motion.button
-                whileHover={{ scale: 1.04, y: -2 }}
+                whileHover={{ scale: 1.04, y: -3, boxShadow: '0 0 60px rgba(59,130,246,0.55)' }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 bg-orange-500 text-white font-fredoka text-[18px] font-semibold
-                  px-8 py-4 rounded-2xl shadow-[0_4px_0_rgba(154,52,18,.25),0_8px_30px_rgba(249,115,22,.30)]
-                  hover:bg-orange-600 transition-colors"
+                className="flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-[16px] px-8 py-4 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.35)] transition-all"
               >
-                Créer mon espace gratuit <ArrowRight size={20} />
+                Créer mon espace gratuit <ArrowRight size={18} />
               </motion.button>
             </Link>
             <Link href="/login">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                className="text-[16px] font-semibold text-orange-700 px-6 py-4 rounded-2xl border-2 border-orange-200 hover:border-orange-400 transition-colors bg-white"
+                whileHover={{ scale: 1.02, borderColor: 'rgba(255,255,255,0.25)' }}
+                className="flex items-center gap-2 text-[16px] font-semibold text-gray-400 hover:text-white px-6 py-4 rounded-2xl border border-white/10 transition-all"
               >
                 J&apos;ai déjà un compte
               </motion.button>
@@ -121,197 +366,191 @@ export default function LandingPage() {
           </div>
 
           {/* Social proof */}
-          <div className="flex items-center justify-center gap-1.5 text-[14px] text-slate-400 mb-14">
-            {['👩‍💼','👨‍💻','👩‍🎨','🧑‍🔬','👩‍💻'].map((e, i) => (
-              <span key={i} className="text-xl -ml-1 first:ml-0 border-2 border-white rounded-full">{e}</span>
-            ))}
-            <span className="ml-2 font-semibold">+2 400 utilisateurs actifs</span>
-            <span className="flex">{'⭐'.repeat(5)}</span>
+          <div className="flex items-center gap-3 text-sm text-gray-500">
+            <div className="flex -space-x-2">
+              {AVATARS.map((n, i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 border-2 border-[#020817] flex items-center justify-center text-white text-[10px] font-bold"
+                >
+                  {n}
+                </div>
+              ))}
+            </div>
+            <div>
+              <span className="text-yellow-400">★★★★★</span>
+              <span className="ml-2">+2 400 utilisateurs actifs</span>
+            </div>
           </div>
         </motion.div>
 
-        {/* ── PHONE MOCKUP ── */}
+        {/* Right — 3D Orb */}
         <motion.div
-          style={{ y: phoneY }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
-          className="relative mx-auto w-[280px]"
+          style={{ y: orbY, opacity: orbOpacity }}
+          initial={{ opacity: 0, scale: 0.75 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="hidden lg:block flex-shrink-0"
         >
-          {/* Glow */}
-          <div className="absolute -inset-6 bg-orange-300/20 rounded-[50px] blur-2xl" />
-
-          {/* Phone */}
-          <div className="relative bg-white rounded-[36px] border-[6px] border-orange-200 p-4
-            shadow-[0_20px_60px_rgba(249,115,22,.25),0_4px_0_rgba(154,52,18,.15)]">
-            {/* Notch */}
-            <div className="w-16 h-1.5 bg-orange-200 rounded-full mx-auto mb-4" />
-
-            {/* Header */}
-            <div className="flex justify-between items-center mb-3">
-              <div>
-                <p className="font-fredoka text-[16px] font-bold text-orange-900">👋 Salut, Sophie !</p>
-                <p className="text-[10px] text-slate-400">Lundi 19 mai</p>
-              </div>
-              <div className="text-right">
-                <p className="font-fredoka text-[18px] font-bold text-orange-500">75%</p>
-                <p className="text-[10px] text-slate-400">du jour</p>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="h-2 bg-orange-100 rounded-full mb-3 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: '75%' }}
-                transition={{ delay: 0.8, duration: 0.8, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-orange-500 to-amber-300 rounded-full"
-              />
-            </div>
-
-            {/* Task previews */}
-            <div className="flex flex-col gap-2">
-              {TASK_PREVIEW.map((t, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border-l-4 ${
-                    t.done ? 'bg-green-50 border-green-400 opacity-60' : 'bg-white border-orange-400'
-                  } shadow-sm`}
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    t.done ? 'bg-green-500 border-green-500' : 'border-orange-300'
-                  }`}>
-                    {t.done && <span className="text-white text-[8px]">✓</span>}
-                  </div>
-                  <span className={`text-[11px] font-semibold leading-tight flex-1 ${
-                    t.done ? 'line-through text-slate-400' : 'text-orange-900'
-                  }`}>{t.title}</span>
-                  <span className="text-[12px]">{t.cat}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Streak */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="mt-3 flex items-center justify-center gap-1.5 bg-orange-50 rounded-xl p-2 border border-orange-200"
-            >
-              <span className="text-[16px]">🔥</span>
-              <span className="font-fredoka text-[13px] font-bold text-orange-600">7 jours de suite !</span>
-            </motion.div>
-          </div>
+          <Orb3D />
         </motion.div>
       </section>
 
+      {/* ── CONTAINER SCROLL — Dashboard 3D ── */}
+      <ContainerScroll
+        titleComponent={
+          <div className="text-center mb-4">
+            <motion.span
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-gray-500 text-sm px-4 py-1.5 rounded-full mb-5"
+            >
+              <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+              Interface intuitive
+            </motion.span>
+            <h2 className="text-[42px] md:text-[56px] font-black text-white mb-4 tracking-tight leading-tight">
+              Un tableau de bord{' '}
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                pensé pour toi
+              </span>
+            </h2>
+            <p className="text-gray-500 text-lg max-w-xl mx-auto">
+              Visualise tes tâches, suis ta progression, laisse l&apos;IA t&apos;aider.
+            </p>
+          </div>
+        }
+      >
+        <DashboardPreview />
+      </ContainerScroll>
+
       {/* ── FEATURES ── */}
-      <section className="max-w-5xl mx-auto px-5 py-20">
+      <section className="max-w-6xl mx-auto px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
-          <h2 className="font-fredoka text-[38px] font-bold text-orange-900 mb-3">
-            Tout ce qu&apos;il te faut 🚀
+          <h2 className="text-[42px] font-black text-white mb-4 tracking-tight">
+            Tout ce qu&apos;il te faut
           </h2>
-          <p className="text-[16px] text-slate-500">Des fonctionnalités pensées pour la vraie productivité.</p>
+          <p className="text-gray-500 text-lg">Des fonctionnalités pensées pour la vraie productivité.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {FEATURES.map((f, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(249,115,22,.18)' }}
-              className="bg-white rounded-[24px] border-2 border-orange-100 p-6
-                shadow-[0_2px_12px_rgba(249,115,22,.08)] transition-shadow"
+              whileHover={{ y: -6, borderColor: 'rgba(99,179,237,0.25)' }}
+              className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 transition-all cursor-default"
             >
-              <div className="w-11 h-11 bg-orange-100 text-orange-500 rounded-2xl flex items-center justify-center mb-4">
-                {f.icon}
+              <div className={`w-11 h-11 bg-gradient-to-br ${f.gradient} rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
+                <f.icon size={20} className="text-white" />
               </div>
-              <h3 className="font-fredoka text-[18px] font-bold text-orange-900 mb-1">{f.title}</h3>
-              <p className="text-[14px] text-slate-400 leading-relaxed">{f.desc}</p>
+              <h3 className="text-white font-bold text-[17px] mb-2">{f.title}</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="bg-orange-500 py-16 px-5">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-fredoka text-[34px] font-bold text-white text-center mb-10"
-          >
-            Ils adorent TaskFlow ❤️
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white/15 backdrop-blur-sm rounded-[24px] p-5 border border-white/25"
-              >
-                <p className="text-white/90 text-[14px] leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{t.avatar}</span>
-                  <div>
-                    <p className="font-bold text-white text-[14px]">{t.name}</p>
-                    <p className="text-white/60 text-[12px]">{t.role}</p>
-                  </div>
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <motion.h2
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-[40px] font-black text-white text-center mb-12 tracking-tight"
+        >
+          Ils adorent{' '}
+          <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            TaskFlow
+          </span>
+        </motion.h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 transition-all"
+            >
+              <div className="flex mb-4">
+                {[...Array(5)].map((_, s) => (
+                  <Star key={s} size={13} className="text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${t.color} flex items-center justify-center text-white text-xs font-bold`}>
+                  {t.initials}
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                <div>
+                  <p className="font-bold text-white text-sm">{t.name}</p>
+                  <p className="text-gray-600 text-xs">{t.role}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* ── CTA FINAL ── */}
-      <section className="max-w-5xl mx-auto px-5 py-20 text-center">
+      {/* ── CTA ── */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          className="relative rounded-3xl border border-blue-500/20 p-14 text-center overflow-hidden"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(37,99,235,0.14) 0%, rgba(2,8,23,0.95) 70%)' }}
         >
-          <h2 className="font-fredoka text-[40px] font-bold text-orange-900 mb-4">
-            Prêt à changer ta productivité ? 🎯
-          </h2>
-          <p className="text-[16px] text-slate-500 mb-8 max-w-md mx-auto">
-            Rejoins des milliers d&apos;utilisateurs qui organisent leur journée avec TaskFlow.
-          </p>
-          <Link href="/register">
-            <motion.button
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 bg-orange-500 text-white font-fredoka text-[20px] font-semibold
-                px-10 py-5 rounded-2xl shadow-[0_4px_0_rgba(154,52,18,.25),0_12px_40px_rgba(249,115,22,.35)]
-                hover:bg-orange-600 transition-colors"
-            >
-              Commencer gratuitement <ArrowRight size={22} />
-            </motion.button>
-          </Link>
-          <p className="text-[13px] text-slate-400 mt-4">Aucune carte bancaire • Gratuit pour toujours</p>
+          {/* Glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(59,130,246,0.18) 0%, transparent 60%)' }}
+          />
+          <div className="relative z-10">
+            <h2 className="text-[46px] font-black text-white mb-4 tracking-tight leading-tight">
+              Prêt à changer ta{' '}
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                productivité ?
+              </span>
+            </h2>
+            <p className="text-gray-500 text-lg mb-10 max-w-md mx-auto">
+              Rejoins des milliers d&apos;utilisateurs qui organisent leur journée avec TaskFlow.
+            </p>
+            <Link href="/register">
+              <motion.button
+                whileHover={{ scale: 1.05, y: -4, boxShadow: '0 0 80px rgba(59,130,246,0.6)' }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-[18px] px-11 py-5 rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.4)] transition-all"
+              >
+                Commencer gratuitement <ArrowRight size={20} />
+              </motion.button>
+            </Link>
+            <p className="text-gray-700 text-sm mt-5">Aucune carte bancaire • Gratuit pour toujours</p>
+          </div>
         </motion.div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-orange-100 py-6 px-5 text-center">
-        <p className="text-[13px] text-slate-400">
-          © 2026 TaskFlow — Fait avec ❤️ et ☕
-        </p>
+      <footer className="border-t border-white/5 py-8 px-6 text-center">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.4)]">
+            <span className="text-white font-black text-xs">T</span>
+          </div>
+          <span className="font-bold text-white text-sm">TaskFlow</span>
+        </div>
+        <p className="text-gray-700 text-sm">© 2026 TaskFlow — Fait avec ❤️ et IA</p>
       </footer>
     </div>
   )
