@@ -9,10 +9,11 @@ import type { Task } from '@/types/database'
 import { CAT_META, PRIO_META } from '@/lib/design'
 import clsx from 'clsx'
 
-const PRIO_BORDER: Record<string, string> = {
-  high:   'border-l-red-400',
-  medium: 'border-l-orange-400',
-  low:    'border-l-green-400',
+/* Couleurs de bordure gauche selon priorité */
+const PRIO_GLOW: Record<string, { border: string; glow: string; dot: string }> = {
+  high:   { border: 'border-l-red-500',    glow: 'rgba(239,68,68,0.15)',   dot: '#ef4444' },
+  medium: { border: 'border-l-orange-400', glow: 'rgba(249,115,22,0.12)',  dot: '#f97316' },
+  low:    { border: 'border-l-emerald-500',glow: 'rgba(16,185,129,0.12)',  dot: '#10b981' },
 }
 
 interface Props {
@@ -27,6 +28,7 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
   const done = task.status === 'done'
   const cat  = CAT_META[task.category]
   const prio = PRIO_META[task.priority]
+  const pg   = PRIO_GLOW[task.priority]
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id })
@@ -51,76 +53,111 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
   return (
     <motion.div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        boxShadow: isDragging
+          ? `0 20px 60px rgba(59,130,246,0.3), 0 0 0 1px rgba(59,130,246,0.2)`
+          : `0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 24px ${pg.glow}`,
+      }}
       layout
-      initial={{ opacity: 0, y: 14, scale: 0.97 }}
+      initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: -40, scale: 0.94 }}
-      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-      whileHover={{ y: isDragging ? 0 : -2 }}
+      exit={{ opacity: 0, x: -32, scale: 0.93 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      whileHover={{ y: isDragging ? 0 : -3 }}
       className={clsx(
-        'group flex items-start gap-2.5 p-4 rounded-2xl border-2 border-l-4 bg-white select-none',
-        PRIO_BORDER[task.priority],
-        isDragging
-          ? 'shadow-[0_16px_48px_rgba(249,115,22,.30)] scale-[1.02] border-orange-300'
-          : 'shadow-[0_2px_10px_rgba(249,115,22,.09)]',
-        done ? 'opacity-60 bg-green-50/60 border-green-200 border-l-green-400' : 'border-orange-200',
-        'transition-shadow transition-colors duration-150',
+        'group relative flex items-start gap-3 p-4 rounded-2xl border-l-4 select-none overflow-hidden transition-all duration-200',
+        pg.border,
+        done
+          ? 'bg-white/[0.02] border-t border-r border-b border-white/5 opacity-55'
+          : 'bg-white/[0.05] border-t border-r border-b border-white/8',
+        isDragging && 'scale-[1.02] bg-white/10',
       )}
     >
-      {/* Drag */}
-      <button {...attributes} {...listeners}
-        className="mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-orange-200 hover:text-orange-400 touch-none">
-        <GripVertical size={17} />
+      {/* Reflet de lumière en haut */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
+      {/* Drag handle */}
+      <button
+        {...attributes} {...listeners}
+        className="mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-white/15 hover:text-white/40 touch-none transition-colors"
+      >
+        <GripVertical size={16} />
       </button>
 
       {/* Checkbox */}
-      <motion.button onClick={handleToggle} disabled={busy} whileTap={{ scale: 0.82 }}
-        className="mt-0.5 shrink-0 w-5 h-5 flex items-center justify-center">
-        {busy
-          ? <Loader2 size={18} className="animate-spin text-orange-400" />
-          : done
-            ? <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500 }}>
-                <CheckCircle2 size={20} className="text-green-500" />
-              </motion.div>
-            : <Circle size={20} className="text-orange-300 group-hover:text-orange-400 transition-colors" />
-        }
+      <motion.button
+        onClick={handleToggle} disabled={busy}
+        whileTap={{ scale: 0.8 }}
+        className="mt-0.5 shrink-0 w-5 h-5 flex items-center justify-center"
+      >
+        {busy ? (
+          <Loader2 size={17} className="animate-spin text-blue-400" />
+        ) : done ? (
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500 }}>
+            <CheckCircle2 size={19} className="text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+          </motion.div>
+        ) : (
+          <Circle size={19} className="text-white/20 group-hover:text-white/40 transition-colors" />
+        )}
       </motion.button>
 
-      {/* Body */}
+      {/* Contenu */}
       <div className="flex-1 min-w-0">
         <p className={clsx(
-          'text-[14px] font-semibold text-orange-900 leading-snug break-words',
-          done && 'line-through text-slate-400',
+          'text-[14px] font-semibold leading-snug break-words',
+          done ? 'line-through text-white/30' : 'text-white/90',
         )}>
           {task.title}
         </p>
+
         {task.description && (
-          <p className="text-[12px] text-slate-400 mt-0.5 leading-snug line-clamp-1">{task.description}</p>
+          <p className="text-[12px] text-white/35 mt-0.5 leading-snug line-clamp-1">
+            {task.description}
+          </p>
         )}
-        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {/* Heure */}
           {task.scheduled_at && (
-            <span className="flex items-center gap-0.5 text-[11px] text-slate-400">
-              <Clock size={10} />
+            <span className="flex items-center gap-1 text-[11px] text-white/30 bg-white/5 px-2 py-0.5 rounded-full">
+              <Clock size={9} />
               {new Date(task.scheduled_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
-          <span className={clsx('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide', cat.color)}>
+
+          {/* Catégorie */}
+          <span className={clsx(
+            'text-[11px] font-semibold px-2 py-0.5 rounded-full',
+            cat.color,
+          )}>
             {cat.emoji} {cat.label}
           </span>
-          <span className={clsx('w-1.5 h-1.5 rounded-full shrink-0', prio.dot)} title={`Priorité ${prio.label}`} />
+
+          {/* Priorité — point lumineux */}
+          <span
+            className="w-1.5 h-1.5 rounded-full shrink-0"
+            style={{ backgroundColor: pg.dot, boxShadow: `0 0 6px ${pg.dot}` }}
+            title={`Priorité ${prio.label}`}
+          />
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Actions — apparaissent au hover */}
       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        <motion.button onClick={() => onEdit(task)} whileTap={{ scale: 0.85 }}
-          className="text-orange-300 hover:text-orange-500 p-1 rounded-lg transition-colors" aria-label="Modifier">
-          <Pencil size={14} />
+        <motion.button
+          onClick={() => onEdit(task)} whileTap={{ scale: 0.85 }}
+          className="text-white/25 hover:text-blue-400 p-1.5 rounded-lg hover:bg-blue-500/10 transition-all"
+          aria-label="Modifier"
+        >
+          <Pencil size={13} />
         </motion.button>
-        <motion.button onClick={handleDelete} disabled={busy} whileTap={{ scale: 0.85 }}
-          className="text-red-200 hover:text-red-500 p-1 rounded-lg transition-colors" aria-label="Supprimer">
-          <Trash2 size={14} />
+        <motion.button
+          onClick={handleDelete} disabled={busy} whileTap={{ scale: 0.85 }}
+          className="text-white/25 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10 transition-all"
+          aria-label="Supprimer"
+        >
+          <Trash2 size={13} />
         </motion.button>
       </div>
     </motion.div>

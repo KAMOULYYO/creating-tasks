@@ -57,82 +57,112 @@ function GridBackground() {
 }
 
 function Orb3D() {
+  /* helpers pour créer les masques anneau */
+  const ring = (i: number, o: number) =>
+    `radial-gradient(circle, transparent ${i - 1}%, black ${i}%, black ${o}%, transparent ${o + 1}%)`
+
   return (
     <div
-      className="relative w-[460px] h-[460px] flex items-center justify-center flex-shrink-0"
-      style={{ perspective: '1200px' }}
+      className="relative w-[500px] h-[500px] flex items-center justify-center flex-shrink-0"
+      style={{ perspective: '1100px' }}
     >
-      {/* Ambient glow */}
+      {/* Halo ambiant bleu-orange */}
       <div
-        className="absolute inset-0 rounded-full blur-[120px] opacity-25"
-        style={{ background: 'radial-gradient(circle, #3B82F6 0%, #F97316 60%, transparent 80%)' }}
+        className="absolute inset-8 rounded-full blur-[90px] opacity-30 pointer-events-none"
+        style={{ background: 'radial-gradient(circle at 40% 45%, #f97316 0%, #3b82f6 55%, transparent 80%)' }}
       />
 
-      {/* 3D rocking motion */}
+      {/* Tilt 3D lent */}
       <motion.div
-        animate={{ rotateY: [0, 18, 0, -18, 0], rotateX: [-4, 6, -4] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-        className="relative w-[380px] h-[380px]"
+        animate={{ rotateY: [-8, 8, -8], rotateX: [5, -3, 5] }}
+        transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+        className="relative w-[420px] h-[420px]"
         style={{ transformStyle: 'preserve-3d' }}
       >
-        {/* Outer ring — slow clockwise */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
-          className="absolute inset-0 rounded-full"
-          style={{
-            background:
-              'conic-gradient(from 0deg, #1e40af, #0891b2, #06b6d4, #f97316, #ec4899, #7c3aed, #1e40af)',
-            WebkitMask:
-              'radial-gradient(circle, transparent 36%, black 36%, black 47%, transparent 47%)',
-            mask: 'radial-gradient(circle, transparent 36%, black 36%, black 47%, transparent 47%)',
-          }}
-        />
 
-        {/* Inner ring — faster counter-clockwise */}
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-          className="absolute inset-14 rounded-full"
-          style={{
-            background: 'conic-gradient(from 90deg, #06b6d4, #7c3aed, #f97316, #06b6d4)',
-            WebkitMask:
-              'radial-gradient(circle, transparent 36%, black 36%, black 52%, transparent 52%)',
-            mask: 'radial-gradient(circle, transparent 36%, black 36%, black 52%, transparent 52%)',
-            opacity: 0.65,
-          }}
-        />
+        {/* ── ANNEAU EXTÉRIEUR — corps bleu métallique ── */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(circle at 33% 28%,
+            #6cb4ff 0%, #2b72d8 18%, #0d3d8f 38%, #051e55 60%, #020c28 80%)`,
+          WebkitMask: ring(32, 52),
+          mask:        ring(32, 52),
+        }} />
 
-        {/* Core pulse */}
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 3.5, repeat: Infinity }}
-          className="absolute inset-[32%] rounded-full blur-2xl"
-          style={{ background: 'radial-gradient(circle, #06b6d4, #3b82f6 55%, transparent)' }}
-        />
+        {/* Reflet bleu clair en haut-gauche */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 22% 18%,
+            rgba(160,215,255,0.95) 0%, rgba(80,160,255,0.55) 20%, transparent 48%)`,
+          WebkitMask: ring(32, 52),
+          mask:        ring(32, 52),
+        }} />
 
-        {/* Outer glow halo */}
-        <div
-          className="absolute -inset-6 rounded-full blur-3xl opacity-20"
-          style={{ background: 'conic-gradient(from 0deg, #3b82f6, #f97316, #7c3aed, #3b82f6)' }}
-        />
+        {/* Ombre sombre en bas-droite */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 80% 82%,
+            rgba(0,0,0,0.97) 0%, transparent 42%)`,
+          WebkitMask: ring(32, 52),
+          mask:        ring(32, 52),
+        }} />
+
+        {/* Reflet secondaire bas-gauche (lumière réfléchie) */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 20% 78%,
+            rgba(50,120,220,0.5) 0%, transparent 38%)`,
+          WebkitMask: ring(32, 52),
+          mask:        ring(32, 52),
+        }} />
+
+        {/* ── FACE INTÉRIEURE — chaud orange → rose ── */}
+        {/* Visible sur le bord intérieur de l'anneau */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 46% 40%,
+            #ffaa55 0%, #ff5577 28%, #cc1055 55%, #7a0030 82%)`,
+          WebkitMask: ring(28, 36),
+          mask:        ring(28, 36),
+        }} />
+
+        {/* ── ANNEAU INTÉRIEUR — second tore plus petit ── */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(circle at 36% 30%,
+            #4a90e8 0%, #1a52a8 30%, #08246a 62%, #030e30 85%)`,
+          WebkitMask: ring(19, 30),
+          mask:        ring(19, 30),
+        }} />
+
+        {/* Reflet anneau intérieur */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 26% 22%,
+            rgba(130,195,255,0.9) 0%, rgba(60,140,240,0.4) 25%, transparent 52%)`,
+          WebkitMask: ring(19, 30),
+          mask:        ring(19, 30),
+        }} />
+
+        {/* Face intérieure anneau interne (rose-orange) */}
+        <div className="absolute inset-0 rounded-full" style={{
+          background: `radial-gradient(ellipse at 48% 44%,
+            #ff9944 0%, #ff4466 35%, #bb1144 62%, transparent 80%)`,
+          WebkitMask: ring(17, 22),
+          mask:        ring(17, 22),
+        }} />
+
+        {/* ── TROU CENTRAL ── */}
+        <div className="absolute inset-[29%] rounded-full" style={{
+          background: 'radial-gradient(ellipse at 35% 30%, #040f22 0%, #010810 100%)',
+          boxShadow:  'inset 0 0 28px rgba(0,0,0,1), inset 0 6px 16px rgba(59,130,246,0.06)',
+        }} />
+
+        {/* Lueur orange visible dans le trou (reflet interne) */}
+        <div className="absolute inset-[31%] rounded-full" style={{
+          background: 'radial-gradient(ellipse at 52% 55%, rgba(255,100,40,0.12) 0%, transparent 70%)',
+        }} />
+
+        {/* ── HALO EXTERNE ── */}
+        <div className="absolute -inset-4 rounded-full blur-2xl opacity-18 pointer-events-none" style={{
+          background: 'radial-gradient(circle, #3b82f6 0%, transparent 65%)',
+        }} />
+
       </motion.div>
 
-      {/* Orbiting dots */}
-      {[0, 60, 120, 180, 240, 300].map((deg, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 rounded-full"
-          style={{
-            background: i % 2 === 0 ? '#60a5fa' : '#f97316',
-            boxShadow: i % 2 === 0 ? '0 0 8px #3b82f6' : '0 0 8px #f97316',
-          }}
-          animate={{ rotate: [deg, deg + 360] }}
-          transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'linear' }}
-          // position on a circular orbit
-          initial={{ x: Math.cos((deg * Math.PI) / 180) * 210, y: Math.sin((deg * Math.PI) / 180) * 210 }}
-        />
-      ))}
     </div>
   )
 }
@@ -253,8 +283,7 @@ function DashboardPreview() {
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef })
-  const orbY       = useTransform(scrollYProgress, [0, 1], [0, 80])
-  const orbOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+  const orbY = useTransform(scrollYProgress, [0, 1], [0, 60])
 
   return (
     <div className="min-h-screen bg-[#020817] overflow-x-hidden text-white">
@@ -386,7 +415,7 @@ export default function LandingPage() {
 
         {/* Right — 3D Orb */}
         <motion.div
-          style={{ y: orbY, opacity: orbOpacity }}
+          style={{ y: orbY }}
           initial={{ opacity: 0, scale: 0.75 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 1 }}
