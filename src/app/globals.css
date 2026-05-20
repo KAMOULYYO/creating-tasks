@@ -131,11 +131,114 @@ body {
   }
 }
 
+/* ── Landing page — CSS animations (replaces framer-motion) ── */
+@keyframes landingFadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes landingSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes orbFloat {
+  0%,100% { transform: perspective(1100px) rotateY(-8deg) rotateX(5deg); }
+  33%      { transform: perspective(1100px) rotateY(8deg)  rotateX(-3deg); }
+  66%      { transform: perspective(1100px) rotateY(-4deg) rotateX(3deg); }
+}
+@keyframes splashRadar {
+  from { width: 80px;  height: 80px;  opacity: .8; }
+  to   { width: 600px; height: 600px; opacity: 0;  }
+}
+@keyframes splashBarFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+@keyframes pulseDot {
+  0%,100% { opacity: 1; }
+  50%     { opacity: .35; }
+}
+@keyframes splashLogoIn {
+  from { transform: scale(0) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);  opacity: 1; }
+}
+@keyframes splashTextIn {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Entrance animation utilities */
+.anim-nav     { animation: landingSlideDown .6s ease both; }
+.anim-fade-up { animation: landingFadeUp .8s cubic-bezier(.23,1,.32,1) both; }
+
+/* Delay utilities */
+.d1 { animation-delay: .10s; }
+.d2 { animation-delay: .20s; }
+.d3 { animation-delay: .30s; }
+.d4 { animation-delay: .40s; }
+.d5 { animation-delay: .50s; }
+.d6 { animation-delay: .65s; }
+
+/* Marquee */
+.marquee-track { animation: marqueeScroll 28s linear infinite; }
+
+/* Orb float */
+.orb-float { animation: orbFloat 11s ease-in-out infinite; transform-style: preserve-3d; }
+
+/* Hover — replaces framer whileHover */
+.hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
+.hover-lift:hover { transform: translateY(-3px); }
+.hover-scale { transition: transform .2s ease, box-shadow .2s ease; }
+.hover-scale:hover { transform: scale(1.04) !important; }
+
+/* Bento card */
+.bento-card { transition: transform .25s cubic-bezier(.23,1,.32,1); }
+.bento-card:hover { transform: translateY(-4px) scale(1.02); }
+
+/* Pulse dot */
+.pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+/* Splash CSS */
+.splash-radar {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(59,130,246,.2);
+  animation: splashRadar 2.8s ease-out infinite;
+  width: 80px; height: 80px;
+}
+.splash-logo    { animation: splashLogoIn .7s cubic-bezier(.34,1.56,.64,1) .3s both; }
+.splash-text    { animation: splashTextIn .45s cubic-bezier(.23,1,.32,1) .65s both; }
+.splash-tagline { animation: landingFadeUp .5s ease 1.4s both; }
+.splash-bar-wrap { animation: landingFadeUp .5s ease 1.5s both; }
+.splash-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg,#3b82f6,#22d3ee,#3b82f6);
+  border-radius: 9999px;
+  animation: splashBarFill 1.5s cubic-bezier(.33,1,.68,1) 1.6s both;
+  width: 0%;
+}
+
 /* ── Perf: réduire animations si préférence système ── */
 @media (prefers-reduced-motion: reduce) {
   .aurora-blob,
   .shape-spin-slow,
-  .shape-spin-reverse {
+  .shape-spin-reverse,
+  .anim-nav,
+  .anim-fade-up,
+  .marquee-track,
+  .orb-float,
+  .splash-radar,
+  .splash-logo,
+  .splash-text,
+  .splash-tagline,
+  .splash-bar-wrap,
+  .splash-bar-fill,
+  .pulse-dot {
     animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    width: 100% !important;
   }
 }
